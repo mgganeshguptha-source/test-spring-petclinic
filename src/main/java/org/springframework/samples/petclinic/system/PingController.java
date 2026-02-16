@@ -37,10 +37,7 @@ public class PingController {
 	 */
 	@GetMapping("/ping")
 	public Map<String, Object> ping() {
-		return Map.of(
-			"status", "UP",
-			"timestamp", Instant.now().toString()
-		);
+		return Map.of("status", "UP", "timestamp", Instant.now().toString());
 	}
 
 }
