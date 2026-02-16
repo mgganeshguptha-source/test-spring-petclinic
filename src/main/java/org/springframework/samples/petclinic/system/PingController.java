@@ -13,29 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.springframework.samples.petclinic.system;
 
-import org.junit.jupiter.api.Test;
+import java.time.Instant;
+import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Test class for {@link CrashController}
+ * Simple health-check controller providing a ping endpoint.
  *
- * @author Colin But
- * @author Alex Lutz
+ * @author PetClinic Team
  */
-// Waiting https://github.com/spring-projects/spring-boot/issues/5574 ..good
-// luck ((plain(st) UNIT test)! :)
-class CrashControllerTests {
+@RestController
+@RequestMapping("/api/v1")
+public class PingController {
 
-	final CrashController testee = new CrashController();
-
-	@Test
-	void testTriggerException() {
-		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> testee.triggerException())
-			.withMessageContaining("Expected: controller used to showcase what happens when an exception is thrown");
+	/**
+	 * Health-check endpoint returning a simple status response.
+	 * @return a map containing status and timestamp
+	 */
+	@GetMapping("/ping")
+	public Map<String, Object> ping() {
+		return Map.of(
+			"status", "UP",
+			"timestamp", Instant.now().toString()
+		);
 	}
 
 }
