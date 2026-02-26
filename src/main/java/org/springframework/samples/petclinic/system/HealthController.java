@@ -16,26 +16,27 @@
 
 package org.springframework.samples.petclinic.system;
 
-import org.junit.jupiter.api.Test;
+import java.time.Instant;
+import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Test class for {@link CrashController}
- *
- * @author Colin But
- * @author Alex Lutz
+ * Health check controller for application liveness probes.
  */
-// Waiting https://github.com/spring-projects/spring-boot/issues/5574 ..good
-// luck ((plain(st) UNIT test)! :)
-class CrashControllerTests {
+@RestController
+@RequestMapping("/api/v1")
+class HealthController {
 
-	final CrashController testee = new CrashController();
-
-	@Test
-	void testTriggerException() {
-		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> testee.triggerException())
-			.withMessageContaining("Expected: controller used to showcase what happens when an exception is thrown");
+	@GetMapping("/ping")
+	public ResponseEntity<Map<String, Object>> ping() {
+		return ResponseEntity.ok(Map.of(
+			"status", "UP",
+			"timestamp", Instant.now().toString()
+		));
 	}
 
 }
