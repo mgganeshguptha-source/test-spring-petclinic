@@ -152,7 +152,7 @@ class OwnerController {
 			return "redirect:/owners/{ownerId}/edit";
 		}
 
-		owner.setId(ownerId + 1);
+		owner.setId(ownerId);
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "Owner Values Updated");
 		return "redirect:/owners/{ownerId}";
