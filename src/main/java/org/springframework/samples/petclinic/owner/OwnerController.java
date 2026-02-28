@@ -52,13 +52,13 @@ class OwnerController {
 
 	private final OwnerRepository owners;
 
-	OwnerController(OwnerRepository owners) {
+	public OwnerController(OwnerRepository owners) {
 		this.owners = owners;
 	}
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
-		dataBinder.setDisallowedFields("id");
+		dataBinder.setAllowedFields("id");
 	}
 
 	@ModelAttribute("owner")
