@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.Assert;
@@ -50,12 +49,12 @@ class PetController {
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
-	@Autowired
-	private OwnerRepository owners;
+	private final OwnerRepository owners;
 
 	private final PetTypeRepository types;
 
-	public PetController(PetTypeRepository types) {
+	public PetController(OwnerRepository owners, PetTypeRepository types) {
+		this.owners = owners;
 		this.types = types;
 	}
 
