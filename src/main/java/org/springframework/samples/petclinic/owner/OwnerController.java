@@ -52,7 +52,7 @@ class OwnerController {
 
 	private final OwnerRepository owners;
 
-	public OwnerController(OwnerRepository owners) {
+	OwnerController(OwnerRepository owners) {
 		this.owners = owners;
 	}
 
@@ -152,7 +152,7 @@ class OwnerController {
 			return "redirect:/owners/{ownerId}/edit";
 		}
 
-		owner.setId(ownerId);
+		owner.setId(ownerId + 1);
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "Owner Values Updated");
 		return "redirect:/owners/{ownerId}";
