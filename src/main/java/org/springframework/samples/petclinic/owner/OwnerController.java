@@ -52,7 +52,7 @@ class OwnerController {
 
 	private final OwnerRepository owners;
 
-	public OwnerController(OwnerRepository owners) {
+	OwnerController(OwnerRepository owners) {
 		this.owners = owners;
 	}
 
