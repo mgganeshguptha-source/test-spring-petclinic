@@ -1,0 +1,97 @@
+# filepath: .github/workflows/update-copilot-instructions.yaml
+name: Auto-update copilot-instructions.md on PR merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  update-instructions:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install GitHub Copilot CLI
+        run: npm install -g @github/copilot
+
+      - name: Get merged PR diff (all code files)
+        run: |
+          git diff origin/main~1 origin/main \
+            -- ':!*.md' ':!*.txt' ':!*.json' \
+               ':!*.yml' ':!*.yaml' ':!*.xml' \
+               ':!*.lock' ':!*.sum' ':!*.toml' \
+            > pr_diff.txt
+          echo "Diff captured: $(wc -l < pr_diff.txt) lines"
+
+      - name: Skip if diff is empty
+        id: check_diff
+        run: |
+          if [ ! -s pr_diff.txt ]; then
+            echo "has_diff=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_diff=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Read current copilot-instructions.md
+        if: steps.check_diff.outputs.has_diff == 'true'
+        run: cat .github/copilot-instructions.md > current_instructions.txt
+
+      - name: Run Copilot gap analysis
+        if: steps.check_diff.outputs.has_diff == 'true'
+        env:
+          COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+        run: |
+          DIFF=$(cat pr_diff.txt)
+          INSTRUCTIONS=$(cat current_instructions.txt)
+          copilot -p "You are reviewing a merged PR diff against an existing copilot-instructions.md file. The diff may contain any programming language - Java, TypeScript, Swift, Kotlin, Python etc. Analyse accordingly. CURRENT copilot-instructions.md: --- $INSTRUCTIONS --- MERGED PR DIFF: --- $DIFF --- Task: 1. Analyse the merged code diff carefully regardless of language. 2. Identify any coding patterns, standards, naming conventions, architectural decisions, or best practices in the diff that are NOT already covered in copilot-instructions.md. 3. If gaps found, output ONLY the new markdown instruction entries to append - nothing else. 4. If no gaps found, output exactly: NO_GAPS_FOUND" > copilot_output.txt
+          cat copilot_output.txt
+
+      - name: Check if gaps were found
+        if: steps.check_diff.outputs.has_diff == 'true'
+        id: check_gaps
+        run: |
+          if grep -q "NO_GAPS_FOUND" copilot_output.txt; then
+            echo "gaps_found=false" >> $GITHUB_OUTPUT
+          else
+            echo "gaps_found=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Append gaps to copilot-instructions.md
+        if: steps.check_gaps.outputs.gaps_found == 'true'
+        run: |
+          echo "" >> .github/copilot-instructions.md
+          echo "## Auto-detected Instructions (PR #${{ github.event.pull_request.number }} - $(date +'%Y-%m-%d'))" >> .github/copilot-instructions.md
+          cat copilot_output.txt >> .github/copilot-instructions.md
+
+      - name: Raise PR with updated copilot-instructions.md
+        if: steps.check_gaps.outputs.gaps_found == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="copilot-instructions-update-pr-${{ github.event.pull_request.number }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b $BRANCH
+          git add .github/copilot-instructions.md
+          git commit -m "chore: auto-update copilot-instructions.md based on PR #${{ github.event.pull_request.number }}"
+          git push origin $BRANCH
+          gh pr create \
+            --title "chore: copilot-instructions.md update from PR #${{ github.event.pull_request.number }}" \
+            --body "Automated gap analysis detected missing instructions from merged PR #${{ github.event.pull_request.number }}. Please review and merge if valid." \
+            --base main \
+            --head $BRANCH
