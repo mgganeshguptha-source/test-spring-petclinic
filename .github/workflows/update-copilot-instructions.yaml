@@ -89,7 +89,7 @@ jobs:
           git checkout -b $BRANCH
           git add .github/copilot-instructions.md
           git commit -m "chore: auto-update copilot-instructions.md based on PR #${{ github.event.pull_request.number }}"
-          git push origin $BRANCH
+          git push origin $BRANCH --force
           gh pr create \
             --title "chore: copilot-instructions.md update from PR #${{ github.event.pull_request.number }}" \
             --body "Automated gap analysis detected missing instructions from merged PR #${{ github.event.pull_request.number }}. Please review and merge if valid." \
