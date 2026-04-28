@@ -129,3 +129,22 @@ src/main/java/com/company/project/
 4. Spring Anti-Patterns - Circular dependencies between services
 
 You can extend this file with additional project-specific documentation guidance copied from the longer `.github/copilot-instructions-full stack.md` if you want Copilot to follow repository rules when authoring code.
+
+## Auto-detected Instructions (PR #15 - 2026-04-28)
+### Aspects / AOP
+- Place aspect classes under package `...aspect` and name classes with the `Aspect` suffix (e.g., `LoggingAspect`).
+- Annotate with `@Aspect` and a Spring stereotype (`@Component`) when they are Spring-managed.
+- Keep pointcut expressions simple, document them with Javadoc, and avoid broad "execution(* *(..))" patterns that match unrelated code.
+- Aspects must not contain core business logic; they should orchestrate cross-cutting concerns only.
+
+### Logging-aspect-specific guidelines
+- Use SLF4J for logging and prefer parameterized logging (logger.info("x {}", val)).
+- Never log sensitive data (passwords, tokens, PII) — redact/filter before logging.
+- Keep advice code defensive: do not swallow exceptions silently and avoid catching Throwable unless justified and documented.
+- Write unit tests for aspect behavior where feasible (use Spring test slices or Mockito + AspectJ testing helpers).
+
+### File comments and headers
+- Avoid temporary or commit-specific comments at file top (e.g., "this commit is for..."). Rely on meaningful Javadoc and Git history for provenance.
+- Add a brief class-level Javadoc describing the aspect's purpose and scope instead of one-off comments.
+- Do not leave commented-out code or TODO comments in merged commits; address or track them in issues/PRs.
+
