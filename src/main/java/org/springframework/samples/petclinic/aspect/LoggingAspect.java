@@ -1,3 +1,4 @@
+/* this commit is for logging changes */
 package org.springframework.samples.petclinic.aspect;
 
 import org.aspectj.lang.ProceedingJoinPoint;
