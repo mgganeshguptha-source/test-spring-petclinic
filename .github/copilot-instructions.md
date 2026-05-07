@@ -129,3 +129,16 @@ src/main/java/com/company/project/
 4. Spring Anti-Patterns - Circular dependencies between services
 
 You can extend this file with additional project-specific documentation guidance copied from the longer `.github/copilot-instructions-full stack.md` if you want Copilot to follow repository rules when authoring code.
+
+## Auto-detected Instructions (PR #17 - 2026-05-07)
+### AOP / Cross-cutting Concerns
+
+- Package & naming: place aspects under an `aspect/` or `config/` package and name classes with an `Aspect` suffix (e.g., `LoggingAspect`).
+- Bean & ordering: annotate with `@Aspect` and register as a Spring bean (`@Component` or `@Configuration`). Use `@Order` when order of advices matters.
+- Pointcuts: prefer narrow, explicit pointcuts (annotation-based or specific packages/classes) over broad wildcards like `..*Service.*` to avoid surprising matches.
+- Around advice: always use try/finally when timing so duration is recorded on exceptions; rethrow exceptions (do not swallow).
+- Timing & metrics: prefer System.nanoTime() or Spring’s StopWatch for elapsed time; for production metrics use Micrometer timers rather than log-based measurement.
+- Logging practices: use SLF4J parameterized logging (placeholders), log execution-time at DEBUG or only when exceeding thresholds, and never log sensitive inputs/outputs.
+- Dependencies & config: ensure `spring-boot-starter-aop` / `spring-aop` is present and `@EnableAspectJAutoProxy` is configured if needed.
+- Testing: write focused tests for aspects (enable AOP in test context) and validate no circular dependencies or significant overhead.
+
